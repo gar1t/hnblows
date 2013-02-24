@@ -16,6 +16,7 @@
 -record(state, {sock, waiting}).
 
 -define(TIMEOUT, 5000).
+-define(DEFAULT_CLIENT_PORT, 33301).
 
 %%%===================================================================
 %%% Start / init
@@ -31,10 +32,20 @@ init(Host) ->
     Sock = connect(Host),
     {ok, init_state(Sock)}.
 
-connect(Host) ->
-    case gen_tcp:connect(Host, 8888, [{active, once}, binary]) of
+connect(HostSpec) ->
+    {Host, Port} = connect_info(HostSpec),
+    case gen_tcp:connect(Host, Port, [{active, once}, binary]) of
         {ok, Sock} -> Sock;
         {error, Err} -> error({connect, Err})
+    end.
+
+connect_info({Host, Port}) -> {Host, Port};
+connect_info(Host) -> {Host, default_host_port()}.
+
+default_host_port() ->
+    case application:get_env(default_client_port) of
+        {ok, Port} -> Port;
+        undefined -> ?DEFAULT_CLIENT_PORT
     end.
 
 init_state(Sock) ->

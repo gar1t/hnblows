@@ -1,4 +1,5 @@
-rebar = ./rebar
+rebar := ./rebar
+config := dev
 
 compile: deps
 	$(rebar) compile
@@ -19,4 +20,4 @@ clean:
 	./rebar clean
 
 shell:
-	erl -pa ebin $(wildcard deps/*/ebin) -s reloader -s hnb
+	erl -pa ebin $(wildcard deps/*/ebin) -config priv/$(config) -s reloader -s hnb

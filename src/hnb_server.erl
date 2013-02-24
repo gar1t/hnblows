@@ -2,18 +2,31 @@
 
 -behavior(e2_task).
 
--export([start_link/1]).
+-export([start_link/0, start_link/1]).
 
 -export([init/1, handle_task/1]).
 
 -record(state, {lsock}).
 
+-define(DEFAULT_PORT, 33301).
+
+start_link() ->
+    e2_task:start_link(?MODULE, [], [registered]).
+
 start_link(Port) ->
     e2_task:start_link(?MODULE, Port).
 
+init([]) ->
+    init(default_server_port());
 init(Port) ->
     LSock = listen(Port),
     {ok, init_state(LSock)}.
+
+default_server_port() ->
+    case application:get_env(server_port) of
+        {ok, Port} -> Port;
+        undefined -> ?DEFAULT_PORT
+    end.
 
 init_state(LSock) ->
     #state{lsock=LSock}.

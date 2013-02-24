@@ -1,4 +1,5 @@
 *.beam
 erl_crash.dump
 ebin/*.app
+priv/*.config
 deps

@@ -1,6 +1,7 @@
 -module(user_default).
 
 -define(SERVER, shell_hnb_client).
+-define(DEFAULT_CLIENT_PORT, 33301).
 
 -export([connect/2,
          auth/1,
@@ -17,8 +18,10 @@
 connect(Host, User) ->
     handle_connect_auth(connect(Host), User).
 
+connect({_, _}=Host) ->
+    handle_connect(hnb_client:start_link(?SERVER, Host), Host);
 connect(Host) ->
-    handle_connect(hnb_client:start_link(?SERVER, Host), Host).
+    connect({Host, default_client_port()}).
 
 handle_connect({ok, _Pid}, Host) ->
     put(last_connect, Host),
@@ -27,6 +30,10 @@ handle_connect({error, {already_started, _Pid}}, _Host) ->
     already_connected;
 handle_connect({error, Err}, _Host) ->
     {error, Err}.
+
+default_client_port() ->
+    Env = application:get_all_env(hnblows),
+    proplists:get_value(default_client_port, Env, ?DEFAULT_CLIENT_PORT).
 
 handle_connect_auth(ok, User) -> auth(User);
 handle_connect_auth(Other, _User) -> Other.
