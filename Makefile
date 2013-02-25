@@ -1,5 +1,6 @@
 rebar := ./rebar
 config := dev
+erl := /home/garrett/SCM/psychobitch/bin/psychobitch
 
 compile: deps
 	$(rebar) compile
@@ -20,4 +21,7 @@ clean:
 	./rebar clean
 
 shell:
-	erl -pa ebin $(wildcard deps/*/ebin) -config priv/$(config) -s reloader -s hnb
+	$(erl) -pa ebin $(wildcard deps/*/ebin) \
+               -config priv/$(config) \
+               -s hnb \
+               +P 262144

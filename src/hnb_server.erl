@@ -10,6 +10,10 @@
 
 -define(DEFAULT_PORT, 33301).
 
+%%%===================================================================
+%%% Start / init
+%%%===================================================================
+
 start_link() ->
     e2_task:start_link(?MODULE, [], [registered]).
 
@@ -38,10 +42,17 @@ listen(Port) ->
         {error, Err} -> error({listen, Err})
     end.
 
+%%%===================================================================
+%%% Handle accept / client dispatch
+%%%===================================================================
+
 handle_task(#state{lsock=LSock}=State) ->
     case gen_tcp:accept(LSock) of
         {ok, Sock} ->
             handle_connection(Sock, State);
+        {error, emfile} ->
+            e2_log:error("Accept error: not enough file handles"),
+            {repeat, State};
         {error, Err} ->
             error({accept, Err})
     end.

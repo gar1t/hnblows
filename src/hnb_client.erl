@@ -34,7 +34,8 @@ init(Host) ->
 
 connect(HostSpec) ->
     {Host, Port} = connect_info(HostSpec),
-    case gen_tcp:connect(Host, Port, [{active, once}, binary]) of
+    Opts = [{active, once}, binary],
+    case gen_tcp:connect(Host, Port, Opts) of
         {ok, Sock} -> Sock;
         {error, Err} -> error({connect, Err})
     end.
@@ -105,10 +106,12 @@ handle_msg(user_count, From, State) ->
     send_cmd(<<"user_count">>, State),
     {noreply, schedule_timeout(From, State)};
 handle_msg(timeout, _From, State) ->
-    reply(timeout, State),
+    reply({error, timeout}, State),
     {noreply, clear_waiting(State)};
 handle_msg(close, _From, State) ->
-    {stop, normal, ok, State}.
+    {stop, normal, ok, State};
+handle_msg({tcp_closed, Sock}, _From, #state{sock=Sock}) ->
+    {stop, normal}.
 
 split_parts(Bin) ->
     binary:split(Bin, <<"\r\n">>, [global, trim]).
@@ -186,4 +189,5 @@ format_err(<<"not_authenticated">>) -> not_authenticated;
 format_err(<<"user_exists">>) -> user_exists;
 format_err(<<"invalid_user">>) -> invalid_user;
 format_err(<<"no_such_user">>) -> no_such_user;
-format_err(Other) -> binary_to_list(Other).
+format_err(Bin) when is_binary(Bin) -> binary_to_list(Bin);
+format_err(Other) -> Other.
