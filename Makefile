@@ -1,6 +1,6 @@
 rebar := ./rebar
 config := dev
-erl := /home/garrett/SCM/psychobitch/bin/psychobitch
+erl := erl
 
 compile: deps
 	$(rebar) compile

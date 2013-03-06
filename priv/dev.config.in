@@ -1,0 +1,5 @@
+%%% -*-erlang-*-
+[{hnblows,
+  [{server_mode, true},
+   {server_port, 33302},
+   {default_client_port, 33302}]}].
