@@ -24,4 +24,5 @@ shell:
 	$(erl) -pa ebin $(wildcard deps/*/ebin) \
                -config priv/$(config) \
                -s hnb \
-               +P 262144
+	       +A 16 \
+               +P 1048576
